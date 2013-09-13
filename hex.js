@@ -54,11 +54,7 @@
 			this.draw();
 		};
 	Tile.prototype.draw = function () {
-			if (this.hasOwnProperty('_hex')) {
-				log("Cannot draw tile. Tile has already been drawn.");
-			} else {
-				this._hex = Hexagon(this._x, this._y, this._c)
-			}
+			this._hex = Hexagon(this._x, this._y, this._c)
 		};
 
 	/**************************************************
