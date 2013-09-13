@@ -16,11 +16,12 @@
 	* Hexagon                                         *
 	**************************************************/
 
-	Hexagon = function (x, y, c) {
-			if (!(this instanceof arguments.callee)) return new arguments.callee(x, y, c);
+	Hexagon = function (x, y, c, attrs) {
+			if (!(this instanceof arguments.callee)) return new arguments.callee(x, y, c, attrs);
 			this._x = x;
 			this._y = y;
 			this._c = c;
+			this._attrs = attrs;
 			this.draw();
 		};
 	Hexagon.prototype.draw = function () {
@@ -39,7 +40,7 @@
 					(x + b) + " " + (y + 2 * c)
 				];
 			pathstring = "M" + points.join("L") + "Z";
-			hex.paper.path(pathstring);
+			hex.paper.path(pathstring).attr(this._attrs);
 		};
 
 	/**************************************************
@@ -54,7 +55,7 @@
 			this.draw();
 		};
 	Tile.prototype.draw = function () {
-			this._hex = Hexagon(this._x, this._y, this._c)
+			this._hex = Hexagon(this._x, this._y, this._c, {"fill": "#FFF", "stroke": "none", "class": "tile"})
 		};
 
 	/**************************************************
@@ -71,6 +72,7 @@
 			var tile,
 				n = this._n,
 				w = 20,
+				grid_spacing = 2,
 				spacing_horizontal = 0.866 * 2 * w,
 				spacing_vertical = w * 1.5,
 				stagger_horizontal = 0.866 * w,
@@ -80,9 +82,8 @@
 				x = i * stagger_horizontal;
 				y = i * spacing_vertical;
 				for (var j = 0; j < n; j++) { // column loop
-					Tile(x, y, w)
+					Tile(x + grid_spacing/2, y +grid_spacing/2, w - grid_spacing)
 					x = x + spacing_horizontal;
-					console.log("created a tile at (" + j + ", " + i + ")");
 				};
 			};
 		}
