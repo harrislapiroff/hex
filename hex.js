@@ -55,7 +55,7 @@
 			this.draw();
 		};
 	Tile.prototype.draw = function () {
-			this._hex = Hexagon(this._x, this._y, this._c, {"fill": "#FFF", "stroke": "none", "class": "tile"})
+			this._hex = Hexagon(this._x, this._y, this._c, {"fill": "none", "stroke": "rgba(255,255,255,.75)", "stroke-width":"4", "class": "tile"})
 		};
 
 	/**************************************************
@@ -72,7 +72,7 @@
 			var tile,
 				n = this._n,
 				w = 20,
-				grid_spacing = 2,
+				grid_spacing = 4,
 				spacing_horizontal = 0.866 * 2 * w,
 				spacing_vertical = w * 1.5,
 				stagger_horizontal = 0.866 * w,
