@@ -169,7 +169,7 @@
 		}
 	Grid.prototype.reset = function () {
 			var tiles = this._tiles;
-			for (var i=0; i<tiles.length; i++) {
+			for (var i = 0, l = tiles.length; i < l; i++) {
 				tiles[i].reset();
 			}
 		}
