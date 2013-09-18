@@ -22,6 +22,7 @@
 		},
 		'DEFAULT_ANIMATION_SPEED': 250,
 		'LOGGING_ON': "console" in window, // logging is on if a console exists
+		'BOARD_SIZE': 14
 	}
 
 	// Objects
@@ -126,7 +127,7 @@
 	Tile.prototype.occupy = function (player) {
 			this._owner = player;
 			this._hex.element().animate(hex.settings.TILE_OCCUPIED_STYLES[player.slug()], hex.settings.DEFAULT_ANIMATION_SPEED);
-			log(player.name() + "claimed tile (" + this.coords()[0] + ", " + this.coords()[1] + ")")
+			log(player.name() + " claimed tile (" + this.coords()[0] + ", " + this.coords()[1] + ")")
 		}
 	Tile.prototype.reset = function () {
 			this._owner = null;
@@ -192,7 +193,7 @@
 	Game = function () {
 		if (!(this instanceof Game)) return new Game();
 		this._players = [Player('Player 1', 'p1'), Player('Player 2', 'p2')];
-		this._grid = Grid(14);
+		this._grid = Grid(hex.settings.BOARD_SIZE);
 		this._current_player_idx = 0
 	};
 	Game.prototype.current_player = function () {
