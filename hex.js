@@ -97,6 +97,27 @@
 			this._owner = null;
 			this.draw();
 		};
+	Tile.prototype.adjacents = function () {
+			/* Tile (x, y) is adjacent to tiles:
+			 * (x, y-1)
+			 * (x+1, y-1)
+			 * (x-1, y)
+			 * (x+1, y)
+			 * (x-1, y+1)
+			 * (x, y+1)
+			 */
+			var grid = this._grid,
+				x = this._coords[0],
+				y = this._coords[1];
+			return [
+				grid.tile(x, y-1),
+				grid.tile(x+1, y-1),
+				grid.tile(x-1, y),
+				grid.tile(x+1, y),
+				grid.tile(x-1, y+1),
+				grid.tile(x, y+1)
+			];
+		};
 	Tile.prototype.grid = getter("_grid");
 	Tile.prototype.coords = getter("_coords");
 	Tile.prototype.draw = function () {
@@ -130,6 +151,7 @@
 			this._owner = player;
 			this._hex.element().animate(hex.settings.TILE_OCCUPIED_STYLES[player.slug()], hex.settings.DEFAULT_ANIMATION_SPEED);
 			log(player.name() + " claimed tile (" + this.coords()[0] + ", " + this.coords()[1] + ")")
+			log(this.adjacents());
 		}
 	Tile.prototype.reset = function () {
 			this._owner = null;
@@ -177,6 +199,16 @@
 			}
 		}
 	Grid.prototype.tile = function (x, y) {
+			// First check if the coords are out of bounds and return an appropriate string
+			var n = this._n;
+			if (x < 0 & y < 0) return "TL CORNER"; // no such thing, but whatever
+			if (x < 0 & y >= n) return "BL CORNER";
+			if (x >= n & y < 0) return "TR CORNER";
+			if (x >= n & y >= n) return "BR CORNER"; // no such thing, but whatever
+			if (x < 0) return "L EDGE";
+			if (x >= n) return "R EDGE";
+			if (y < 0) return "T EDGE";
+			if (y >= n) return "B EDGE";
 			return this._coords[x][y];
 		}
 
