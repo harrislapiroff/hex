@@ -11,19 +11,19 @@
 			};
 
 	hex.settings = {
-		'TILE_STYLES': {"fill": "#FFF", "fill-opacity":".25", "stroke": "#FFF", "stroke-opacity": .35, "stroke-width": 1},
-		'TILE_HOVER_STYLES': {
-			'p1': {"fill-opacity": .75, "stroke-opacity": .75},
-			'p2': {"fill-opacity": .75, "stroke-opacity": .75, "fill": "#000", "stroke": "#000"}
-		},
-		'TILE_OCCUPIED_STYLES': {
-			'p1': {"fill": "#FFF", "fill-opacity": 1, "stroke": "#FFF", "stroke-opacity": 1},
-			'p2': {"fill": "#000", "fill-opacity": 1, "stroke": "#000", "stroke-opacity": 1}
-		},
-		'DEFAULT_ANIMATION_SPEED': 250,
-		'LOGGING_ON': "console" in window, // logging is on if a console exists
-		'BOARD_SIZE': 14
-	}
+			'TILE_STYLES': {"fill": "#FFF", "fill-opacity":".25", "stroke": "#FFF", "stroke-opacity": .35, "stroke-width": 1},
+			'TILE_HOVER_STYLES': {
+				'p1': {"fill-opacity": .75, "stroke-opacity": .75},
+				'p2': {"fill-opacity": .75, "stroke-opacity": .75, "fill": "#000", "stroke": "#000"}
+			},
+			'TILE_OCCUPIED_STYLES': {
+				'p1': {"fill": "#FFF", "fill-opacity": 1, "stroke": "#FFF", "stroke-opacity": 1},
+				'p2': {"fill": "#000", "fill-opacity": 1, "stroke": "#000", "stroke-opacity": 1}
+			},
+			'DEFAULT_ANIMATION_SPEED': 250,
+			'LOGGING_ON': "console" in window, // logging is on if a console exists
+			'BOARD_SIZE': 14
+		}
 
 	// Objects
 
@@ -47,6 +47,7 @@
 					this[attr] = value;
 				};
 			};
+
 
 	/**************************************************
 	* Hexagon                                         *
@@ -80,6 +81,7 @@
 			this._el = hex.paper.path(pathstring).attr(this._attrs);
 		};
 	Hexagon.prototype.element = getter('_el')
+
 
 	/**************************************************
 	* Tile                                            *
@@ -134,6 +136,7 @@
 			this._hex.element().animate(hex.settings.TILE_STYLES, hex.settings.DEFAULT_ANIMATION_SPEED);
 		}
 
+
 	/**************************************************
 	* Grid                                            *
 	**************************************************/
@@ -173,6 +176,10 @@
 				tiles[i].reset();
 			}
 		}
+	Grid.prototype.tile = function (x, y) {
+			return this._coords[x][y];
+		}
+
 
 	/**************************************************
 	* Player                                          *
@@ -186,16 +193,17 @@
 	Player.prototype.name = getter("_name");
 	Player.prototype.slug = getter("_slug");
 
+
 	/**************************************************
 	* Game                                            *
 	**************************************************/	
 
 	Game = function () {
-		if (!(this instanceof Game)) return new Game();
-		this._players = [Player('Player 1', 'p1'), Player('Player 2', 'p2')];
-		this._grid = Grid(hex.settings.BOARD_SIZE);
-		this._current_player_idx = 0
-	};
+			if (!(this instanceof Game)) return new Game();
+			this._players = [Player('Player 1', 'p1'), Player('Player 2', 'p2')];
+			this._grid = Grid(hex.settings.BOARD_SIZE);
+			this._current_player_idx = 0;
+		};
 	Game.prototype.current_player = function () {
 			return this._players[this._current_player_idx];
 		};
@@ -208,6 +216,7 @@
 	Game.prototype.reset = function () {
 			this._grid.reset();
 		};
+	Game.prototype.players = getter('_players');
 
 
 	window.addEventListener('load', init)
