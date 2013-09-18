@@ -151,12 +151,12 @@
 			this._owner = player;
 			this._hex.element().animate(hex.settings.TILE_OCCUPIED_STYLES[player.slug()], hex.settings.DEFAULT_ANIMATION_SPEED);
 			log(player.name() + " claimed tile (" + this.coords()[0] + ", " + this.coords()[1] + ")")
-			log(this.adjacents());
 		}
 	Tile.prototype.reset = function () {
 			this._owner = null;
 			this._hex.element().animate(hex.settings.TILE_STYLES, hex.settings.DEFAULT_ANIMATION_SPEED);
 		}
+	Tile.prototype.owner = getter("_owner");
 
 
 	/**************************************************
@@ -240,8 +240,16 @@
 			return this._players[this._current_player_idx];
 		};
 	Game.prototype.next_move = function () {
-			// need to add a victory check
-			// also need an opportunity to switch on first move?
+			// Check victory for the player who just played
+			// TODO: we don't need to check for victory if the number of moves is smaller than the board size
+			if (this.victory_check(this.current_player())) {
+				// This needs to be a nicer victory screen.
+				alert("Victory to " + this.current_player().name());
+				this.reset()
+				return;
+			}
+			// TODO: add an opportunity to switch positions after first move
+			// move on to the next player
 			this._current_player_idx = (this._current_player_idx + 1) % this._players.length
 			// can't imagine why there'd ever be anything other than 2 players, but let's be flexible
 		};
@@ -249,6 +257,53 @@
 			this._grid.reset();
 		};
 	Game.prototype.players = getter('_players');
+	Game.prototype.victory_check = function (player) {
+			// checked tiles needs to be defined outside the check_tiles function so we don't overwrite it each time we recurse through check_tiles.
+			var checked_tiles = [],
+				direction = (player.slug() === "p1") ? "HORIZONTAL" : "VERTICAL",
+				check_tiles = function (list) {
+						// for each tile, either check if it is an end tile or check through adjacent tiles
+						for (var i = 0, l = list.length; i < l; i++) {
+							var tile = list[i], tile_coords, tile_slug;
+
+							// if it's not a tile, move on
+							if (typeof(tile) === "string") continue;
+
+							// if the player doesn't own this tile, move on
+							if (tile.owner() !== player) continue;
+
+							// otherwise, extract its coordinates
+							tile_coords = tile.coords();
+							tile_slug = tile_coords[0] + " " + tile_coords[1];
+
+							// if we're checked this tile previously, move on
+							if (checked_tiles.indexOf(tile_slug) !== -1) continue;
+
+							// add to checked tiles list (before checking to prevent recursing on this tile)
+							checked_tiles.push(tile_slug);
+
+							// check p1 victory condition
+							if (direction === "HORIZONTAL" & tile.coords()[0] === (hex.settings.BOARD_SIZE -1)) return true;
+
+							// check p2 victory contition
+							if (direction === "VERTICAL" & tile.coords()[1] === (hex.settings.BOARD_SIZE - 1)) return true;
+							
+							// if we made it this far, recurse through adjacent tiles
+							if (check_tiles(tile.adjacents())) return true;
+						}
+						// if we made it this far, there is no victory on this branch (no tiles left to check)
+						return false;
+					},
+				initial_list = [];
+			for (var i=0; i<hex.settings.BOARD_SIZE; i++) {
+				// for player 1, start with the left column tiles
+				if (direction === "HORIZONTAL") initial_list.push(this._grid.tile(0, i));
+				// for player 2, start with the top row tiles
+				if (direction === "VERTICAL") initial_list.push(this._grid.tile(i, 0));
+			}
+			// run the check
+			return check_tiles(initial_list);
+		};
 
 
 	window.addEventListener('load', init)
