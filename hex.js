@@ -2,6 +2,9 @@
 	"use strict";
 
 	var hex = window.hex = {},
+		log = function () {
+				if (hex.settings.LOGGING_ON) console.log.apply(console, arguments);
+			},
 		init = function () {
 				hex.paper = Raphael(0, 0, 1000, 600);
 				hex.game = Game();
@@ -17,7 +20,8 @@
 			'p1': {"fill": "#FFF", "fill-opacity": 1, "stroke": "#FFF", "stroke-opacity": 1},
 			'p2': {"fill": "#000", "fill-opacity": 1, "stroke": "#000", "stroke-opacity": 1}
 		},
-		'DEFAULT_ANIMATION_SPEED': 250
+		'DEFAULT_ANIMATION_SPEED': 250,
+		'LOGGING_ON': "console" in window, // logging is on if a console exists
 	}
 
 	// Objects
@@ -80,14 +84,18 @@
 	* Tile                                            *
 	**************************************************/
 
-	Tile = function (x, y, c) { // c is side length of the hexagon in pixels
-			if (!(this instanceof Tile)) return new Tile(x, y, c);
+	Tile = function (x, y, c, coords, grid) { // c is side length of the hexagon in pixels
+			if (!(this instanceof Tile)) return new Tile(x, y, c, coords, grid);
 			this._x = x;
 			this._y = y;
 			this._c = c;
+			this._coords = coords;
+			this._grid = grid;
 			this._owner = null;
 			this.draw();
 		};
+	Tile.prototype.grid = getter("_grid");
+	Tile.prototype.coords = getter("_coords");
 	Tile.prototype.draw = function () {
 			var tile = this; // we need this for use within event-bound functions
 			this._hex = Hexagon(this._x, this._y, this._c, hex.settings.TILE_STYLES)
@@ -118,6 +126,7 @@
 	Tile.prototype.occupy = function (player) {
 			this._owner = player;
 			this._hex.element().animate(hex.settings.TILE_OCCUPIED_STYLES[player.slug()], hex.settings.DEFAULT_ANIMATION_SPEED);
+			log(player.name() + "claimed tile (" + this.coords()[0] + ", " + this.coords()[1] + ")")
 		}
 	Tile.prototype.reset = function () {
 			this._owner = null;
@@ -132,6 +141,7 @@
 			if (!(this instanceof Grid)) return new Grid(n);
 			this._n = n;
 			this._tiles = [];
+			this._coords = [];
 			this.populate();
 		}
 	Grid.prototype.populate = function () {
@@ -142,14 +152,15 @@
 				spacing_horizontal = 0.866 * 2 * w,
 				spacing_vertical = w * 1.5,
 				stagger_horizontal = 0.866 * w,
-				x = 0,
-				y = 0;
+				x, y;
 			for (var i = 0; i < n; i++) { // row loop
 				x = i * stagger_horizontal;
 				y = i * spacing_vertical;
 				for (var j = 0; j < n; j++) { // column loop
-					tile = Tile(x + grid_spacing/2, y +grid_spacing/2, w - grid_spacing);
-					this._tiles.push(tile);
+					if (i == 0) this._coords[j] = [] // create a column array if this is the first row
+					tile = Tile(x + grid_spacing/2, y +grid_spacing/2, w - grid_spacing, [j, i], this);
+					this._tiles.push(tile); // add the tile to the unsorted list
+					this._coords[j][i] = tile; // add the tile to the coordinate multi-array
 					x = x + spacing_horizontal;
 				};
 			};
