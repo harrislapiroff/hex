@@ -16,7 +16,8 @@
 		'TILE_OCCUPIED_STYLES': {
 			'p1': {"fill": "#FFF", "fill-opacity": 1, "stroke": "#FFF", "stroke-opacity": 1},
 			'p2': {"fill": "#000", "fill-opacity": 1, "stroke": "#000", "stroke-opacity": 1}
-		}
+		},
+		'DEFAULT_ANIMATION_SPEED': 250
 	}
 
 	// Objects
@@ -95,11 +96,11 @@
 				if (tile.is_occupied()) return; // only if the tile is not occupied
 				// TODO: network version will also need to check if this is current player's computer
 				var current_player = hex.game.current_player();
-				this.animate(hex.settings.TILE_HOVER_STYLES[current_player.slug()], 250)
+				this.animate(hex.settings.TILE_HOVER_STYLES[current_player.slug()], hex.settings.DEFAULT_ANIMATION_SPEED)
 			}, function () {
 				if (tile.is_occupied()) return; // only if the tile is not occupies
 				// TODO: network version will also need to check if this is current player's computer
-				this.animate(hex.settings.TILE_STYLES, 250)
+				this.animate(hex.settings.TILE_STYLES, hex.settings.DEFAULT_ANIMATION_SPEED)
 			});
 			// add click event
 			this._hex.element().click(function () {
@@ -116,7 +117,11 @@
 		};
 	Tile.prototype.occupy = function (player) {
 			this._owner = player;
-			this._hex.element().animate(hex.settings.TILE_OCCUPIED_STYLES[player.slug()])
+			this._hex.element().animate(hex.settings.TILE_OCCUPIED_STYLES[player.slug()], hex.settings.DEFAULT_ANIMATION_SPEED);
+		}
+	Tile.prototype.reset = function () {
+			this._owner = null;
+			this._hex.element().animate(hex.settings.TILE_STYLES, hex.settings.DEFAULT_ANIMATION_SPEED);
 		}
 
 	/**************************************************
@@ -143,11 +148,18 @@
 				x = i * stagger_horizontal;
 				y = i * spacing_vertical;
 				for (var j = 0; j < n; j++) { // column loop
-					Tile(x + grid_spacing/2, y +grid_spacing/2, w - grid_spacing)
+					tile = Tile(x + grid_spacing/2, y +grid_spacing/2, w - grid_spacing);
+					this._tiles.push(tile);
 					x = x + spacing_horizontal;
 				};
 			};
 			// TODO: should also draw colored borders along the edges of the board to indicate which side belongs to which playger
+		}
+	Grid.prototype.reset = function () {
+			var tiles = this._tiles;
+			for (var i=0; i<tiles.length; i++) {
+				tiles[i].reset();
+			}
 		}
 
 	/**************************************************
@@ -180,6 +192,9 @@
 			// also need an opportunity to switch on first move?
 			this._current_player_idx = (this._current_player_idx + 1) % this._players.length
 			// can't imagine why there'd ever be anything other than 2 players, but let's be flexible
+		};
+	Game.prototype.reset = function () {
+			this._grid.reset();
 		};
 
 
