@@ -1,23 +1,53 @@
 (function () {
+	"use strict";
 
-	var log = console.log || function () {},
-		hex = window.hex = {},
-		paper = hex.paper,
+	var hex = window.hex = {},
 		init = function () {
 				hex.paper = Raphael(0, 0, 1000, 600);
-				Grid(14);
+				hex.game = Game();
 			};
+
+	hex.settings = {
+		'TILE_STYLES': {"fill": "#FFF", "fill-opacity":".25", "stroke": "#FFF", "stroke-opacity": .35, "stroke-width": 1},
+		'TILE_HOVER_STYLES': {
+			'p1': {"fill-opacity": .75, "stroke-opacity": .75},
+			'p2': {"fill-opacity": .75, "stroke-opacity": .75, "fill": "#000", "stroke": "#000"}
+		},
+		'TILE_OCCUPIED_STYLES': {
+			'p1': {"fill": "#FFF", "fill-opacity": 1, "stroke": "#FFF", "stroke-opacity": 1},
+			'p2': {"fill": "#000", "fill-opacity": 1, "stroke": "#000", "stroke-opacity": 1}
+		}
+	}
+
+	// Objects
 
 	var Tile = hex.Tile,
 		Grid = hex.Grid,
-		Hexagon = hex.Hexagon;
+		Hexagon = hex.Hexagon,
+		Player = hex.Player,
+		Game = hex.Game;
+
+	// Utilities
+
+	var	getter = function (attr) {
+				return function () { return this[attr]; };
+			},
+		setter = function (attr) {
+				return function (value) { this[attr] = value; };
+			},
+		getter_setter = function (attr) {
+				return function (value) {
+					if (typeof(value) === "undefined") return this[attr];
+					this[attr] = value;
+				};
+			};
 
 	/**************************************************
 	* Hexagon                                         *
 	**************************************************/
 
 	Hexagon = function (x, y, c, attrs) {
-			if (!(this instanceof arguments.callee)) return new arguments.callee(x, y, c, attrs);
+			if (!(this instanceof Hexagon)) return new Hexagon(x, y, c, attrs);
 			this._x = x;
 			this._y = y;
 			this._c = c;
@@ -31,6 +61,7 @@
 				y = this._y,
 				a = .5 * c,
 				b = Math.sin(Math.PI/3) * c,
+				points, pathstring;
 				points = [
 					(x) + " " + (y + a + c),
 					(x) + " " + (y + a),
@@ -40,30 +71,60 @@
 					(x + b) + " " + (y + 2 * c)
 				];
 			pathstring = "M" + points.join("L") + "Z";
-			hex.paper.path(pathstring).attr(this._attrs);
+			this._el = hex.paper.path(pathstring).attr(this._attrs);
 		};
+	Hexagon.prototype.element = getter('_el')
 
 	/**************************************************
 	* Tile                                            *
 	**************************************************/
 
 	Tile = function (x, y, c) { // c is side length of the hexagon in pixels
-			if (!(this instanceof arguments.callee)) return new arguments.callee(x, y, c);
+			if (!(this instanceof Tile)) return new Tile(x, y, c);
 			this._x = x;
 			this._y = y;
 			this._c = c;
+			this._owner = null;
 			this.draw();
 		};
 	Tile.prototype.draw = function () {
-			this._hex = Hexagon(this._x, this._y, this._c, {"fill": "none", "stroke": "rgba(255,255,255,.75)", "stroke-width":"4", "class": "tile"})
+			var tile = this; // we need this for use within event-bound functions
+			this._hex = Hexagon(this._x, this._y, this._c, hex.settings.TILE_STYLES)
+			// add hover effects
+			this._hex.element().hover(function () {
+				if (tile.is_occupied()) return; // only if the tile is not occupied
+				// TODO: network version will also need to check if this is current player's computer
+				var current_player = hex.game.current_player();
+				this.animate(hex.settings.TILE_HOVER_STYLES[current_player.slug()], 250)
+			}, function () {
+				if (tile.is_occupied()) return; // only if the tile is not occupies
+				// TODO: network version will also need to check if this is current player's computer
+				this.animate(hex.settings.TILE_STYLES, 250)
+			});
+			// add click event
+			this._hex.element().click(function () {
+				if (tile.is_occupied()) return; // only if the tile is not occupied
+				// TODO: network version will also need to check if this is current player's computer
+				tile.occupy(hex.game.current_player());
+				hex.game.next_move();
+			});
 		};
+	Tile.prototype.hexagon = getter('_hex');
+	Tile.prototype.is_occupied = function () {
+			if (this._owner !== null) return true;
+			return false;
+		};
+	Tile.prototype.occupy = function (player) {
+			this._owner = player;
+			this._hex.element().animate(hex.settings.TILE_OCCUPIED_STYLES[player.slug()])
+		}
 
 	/**************************************************
 	* Grid                                            *
 	**************************************************/
 
 	Grid = function (n) { // creates an n x n grid of tiles
-			if (!(this instanceof arguments.callee)) return new arguments.callee(n);
+			if (!(this instanceof Grid)) return new Grid(n);
 			this._n = n;
 			this._tiles = [];
 			this.populate();
@@ -86,7 +147,41 @@
 					x = x + spacing_horizontal;
 				};
 			};
+			// TODO: should also draw colored borders along the edges of the board to indicate which side belongs to which playger
 		}
+
+	/**************************************************
+	* Player                                          *
+	**************************************************/
+
+	Player = function (name, slug) { // creates an n x n grid of tiles
+			if (!(this instanceof Player)) return new Player(name, slug);
+			this._name = name;
+			this._slug = slug;
+		}
+	Player.prototype.name = getter("_name");
+	Player.prototype.slug = getter("_slug");
+
+	/**************************************************
+	* Game                                            *
+	**************************************************/	
+
+	Game = function () {
+		if (!(this instanceof Game)) return new Game();
+		this._players = [Player('Player 1', 'p1'), Player('Player 2', 'p2')];
+		this._grid = Grid(14);
+		this._current_player_idx = 0
+	};
+	Game.prototype.current_player = function () {
+			return this._players[this._current_player_idx];
+		};
+	Game.prototype.next_move = function () {
+			// need to add a victory check
+			// also need an opportunity to switch on first move?
+			this._current_player_idx = (this._current_player_idx + 1) % this._players.length
+			// can't imagine why there'd ever be anything other than 2 players, but let's be flexible
+		};
+
 
 	window.addEventListener('load', init)
 
