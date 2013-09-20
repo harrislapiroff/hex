@@ -11,6 +11,8 @@
 			};
 
 	hex.settings = {
+			'TILE_EDGE': 20,
+			'TILE_GUTTER': 4,
 			'TILE_STYLES': {"fill": "#FFF", "fill-opacity":".25", "stroke": "#FFF", "stroke-opacity": .35, "stroke-width": 1},
 			'TILE_HOVER_STYLES': {
 				'p1': {"fill-opacity": .75, "stroke-opacity": .75},
@@ -173,8 +175,8 @@
 	Grid.prototype.populate = function () {
 			var tile,
 				n = this._n,
-				w = 20,
-				grid_spacing = 4,
+				w = hex.settings.TILE_EDGE,
+				grid_spacing = hex.settings.TILE_GUTTER,
 				spacing_horizontal = 0.866 * 2 * w,
 				spacing_vertical = w * 1.5,
 				stagger_horizontal = 0.866 * w,
