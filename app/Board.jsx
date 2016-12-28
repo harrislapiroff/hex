@@ -19,7 +19,7 @@ class Board extends Component {
 				width={boardWidth}
 				height={boardHeight}
 			>
-				<g transform={`translate(0 ${3 * TILE_V_DISTANCE / 4})`}>
+				<g transform={`translate(0 ${2 * TILE_V_DISTANCE / 3})`}>
 					{this.props.data.map((row, i) => (
 						<g transform={`translate(${TILE_H_DISTANCE * i / 2} ${TILE_V_DISTANCE * i})`}>
 							{row.map((cell, j) => (
