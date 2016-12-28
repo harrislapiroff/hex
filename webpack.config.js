@@ -47,7 +47,7 @@ var common = {
 
 	resolve: {
 		alias: {
-			'~': path.resolve(__dirname, 'src'),
+			'~': path.resolve(__dirname, 'app'),
 			'react/lib/ReactMount': 'react-dom/lib/ReactMount' // https://github.com/gaearon/react-hot-loader/issues/417#issuecomment-261548082
 		},
 		extensions: ['', '.js', '.jsx', '.json', '.scss', '.sass'],

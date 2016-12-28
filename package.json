@@ -41,5 +41,7 @@
     "webpack-merge": "^1.1.1",
     "whatwg-fetch": "^2.0.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "ramda": "^0.22.1"
+  }
 }
