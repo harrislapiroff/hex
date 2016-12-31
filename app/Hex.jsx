@@ -7,7 +7,6 @@ function Hex({
 	center,
 	radius,
 }) {
-
 	const pathString = hexagonPath([0, 0], radius)
 	return (
 		<g transform={`translate(${center[0]} ${center[1]})`}>
