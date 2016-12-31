@@ -1,25 +1,16 @@
-import R from 'ramda'
 import React, { PropTypes } from 'react'
+
+import { hexagonPath } from '~/Helpers/hexagon'
 
 function Hex({
 	owner,
-	centerX,
-	centerY,
+	center,
 	radius,
 }) {
 
-	const points = R.range(0, 6).map(i => {
-		const angle = (Math.PI / 3) * i + (Math.PI / 6)
-		return [
-			radius * Math.cos(angle),
-			radius * Math.sin(angle),
-		]
-	})
-
-	const pathString = "M" + points.map(p => p.join(",")).join("L") + "Z"
-
+	const pathString = hexagonPath([0, 0], radius)
 	return (
-		<g transform={`translate(${centerX} ${centerY})`}>
+		<g transform={`translate(${center[0]} ${center[1]})`}>
 			<path
 				d={pathString}
 			/>
@@ -30,8 +21,7 @@ function Hex({
 
 Hex.propTypes = {
 	owner: PropTypes.number.isRequired,
-	centerX: PropTypes.number.isRequired,
-	centerY: PropTypes.number.isRequired,
+	center: PropTypes.arrayOf(PropTypes.number).isRequired,
 	radius: PropTypes.number.isRequired,
 }
 

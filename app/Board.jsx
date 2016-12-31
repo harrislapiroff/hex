@@ -24,9 +24,9 @@ class Board extends Component {
 						<g transform={`translate(${TILE_H_DISTANCE * i / 2} ${TILE_V_DISTANCE * i})`}>
 							{row.map((cell, j) => (
 								<Hex
+									key={`${i}-${j}`}
 									owner={cell}
-									centerX={j * TILE_H_DISTANCE + TILE_WIDTH / 2}
-									centerY={0}
+									center={[j * TILE_H_DISTANCE + TILE_WIDTH / 2, 0]}
 									radius={TILE_RADIUS}
 								/>
 							))}
