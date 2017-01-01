@@ -23,6 +23,7 @@ class Game extends Component {
 		const currentPlayer = this.state.currentPlayer
 		// Make sure the clicked tile is unclaimed
 		if (currentBoard[row][column] !== players.NONE) return
+		// Set the cell to be owned by the current player and swap current players
 		currentBoard[row][column] = currentPlayer
 		this.setState({
 			data: currentBoard,
