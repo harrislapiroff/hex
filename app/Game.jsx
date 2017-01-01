@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Board from '~/Board'
+import players from '~/Helpers/players'
 
 class Game extends Component {
 	constructor(...args) {
@@ -8,7 +9,8 @@ class Game extends Component {
 		const height = 14
 		const gameBoard = new Array(height)
 		this.state = {
-			data: gameBoard.fill().map(x => new Array(width).fill(0))
+			data: gameBoard.fill().map(x => new Array(width).fill(0)),
+			currentPlayer: players.WHITE,
 		}
 	}
 

@@ -18,6 +18,7 @@ class Board extends Component {
 			<svg
 				width={boardWidth}
 				height={boardHeight}
+				viewBox={`0 0 ${boardWidth} ${boardHeight}`}
 			>
 				<g transform={`translate(0 ${(2 * TILE_V_DISTANCE) / 3})`}>
 					{this.props.data.map((row, i) => (
