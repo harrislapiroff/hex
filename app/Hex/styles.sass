@@ -1,7 +1,21 @@
 .tile__stroke
 	stroke: rgba(#FFF, .75)
 	fill: none
+	transition: linear .25s stroke
 
 .tile__fill
 	stroke: none
 	fill: rgba(#FFF, .25)
+	transition: linear .25s fill
+
+.tile__stroke-is-claimed-by-black
+	stroke: #000
+
+.tile__stroke-is-claimed-by-white
+	stroke: #FFF
+
+.tile__fill-is-claimed-by-black
+	fill: #000
+
+.tile__fill-is-claimed-by-white
+	fill: #FFF

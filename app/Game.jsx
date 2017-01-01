@@ -5,20 +5,43 @@ import players from '~/Helpers/players'
 class Game extends Component {
 	constructor(...args) {
 		super(...args)
+
 		const width = 14
 		const height = 14
-		const gameBoard = new Array(height)
+		const gameBoardRows = new Array(height)
 		this.state = {
-			data: gameBoard.fill().map(x => new Array(width).fill(0)),
+			data: gameBoardRows.fill().map(() => new Array(width).fill(players.NONE)),
 			currentPlayer: players.WHITE,
 		}
+
+		this.handleTileClick = this.handleTileClick.bind(this)
+	}
+
+	handleTileClick(e) {
+		const { row, column } = e.currentTarget.dataset
+		const currentBoard = this.state.data
+		const currentPlayer = this.state.currentPlayer
+		// Make sure the clicked tile is unclaimed
+		if (currentBoard[row][column] !== players.NONE) return
+		currentBoard[row][column] = currentPlayer
+		this.setState({
+			data: currentBoard,
+			currentPlayer: players.otherPlayer(currentPlayer),
+		})
 	}
 
 	render() {
 		return (
-			<Board
-				data={this.state.data}
-			/>
+			<div>
+				<p>
+					<strong>Current Player:</strong>
+					{this.state.currentPlayer}
+				</p>
+				<Board
+					data={this.state.data}
+					onTileClick={this.handleTileClick}
+				/>
+			</div>
 		)
 	}
 }
